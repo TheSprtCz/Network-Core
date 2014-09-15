@@ -6,7 +6,37 @@ public class CommandInfo {
 	private CommandListener listener;
 	private String name;
 	private int arguments=0;
+	private int min=0;
+	private int max=0;
 	private String usage="";
+	public CommandInfo(String name,int arguments, String usage, CommandListener list){
+		this.name=name;
+		this.listener=list;
+		this.setArguments(arguments);
+		this.setMax(arguments);
+		this.setMin(arguments);
+		this.setUsage(usage);
+	}
+	public CommandInfo(String name,int min,int max, String usage, CommandListener list){
+		this.name=name;
+		this.listener=list;
+		this.setArguments(arguments);
+		this.setMax(max);
+		this.setMin(min);
+		this.setUsage(usage);
+	}
+	public String getUsage() {
+		return usage;
+	}
+	public void setUsage(String usage) {
+		this.usage = usage;
+	}
+	public int getArguments() {
+		return arguments;
+	}
+	public void setArguments(int arguments) {
+		this.arguments = arguments;
+	}
 	public String getName() {
 		return name;
 	}
@@ -23,23 +53,17 @@ public class CommandInfo {
 		this.name=name;
 		this.listener=list;
 	}
-	public CommandInfo(String name,int arguments, String usage, CommandListener list){
-		this.name=name;
-		this.listener=list;
-		this.setArguments(arguments);
-		this.setUsage(usage);
+	public int getMin() {
+		return min;
 	}
-	public String getUsage() {
-		return usage;
+	public void setMin(int min) {
+		this.min = min;
 	}
-	public void setUsage(String usage) {
-		this.usage = usage;
+	public int getMax() {
+		return max;
 	}
-	public int getArguments() {
-		return arguments;
-	}
-	public void setArguments(int arguments) {
-		this.arguments = arguments;
+	public void setMax(int max) {
+		this.max = max;
 	}
 	
 }

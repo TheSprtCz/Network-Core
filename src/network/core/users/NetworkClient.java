@@ -51,6 +51,10 @@ public class NetworkClient extends AbstractNetworkUser{
 	    public void send(Object ob) throws IOException{
 	    	o.writeObject(new MessagePacket(nick, ob));
 	    }
+	    public void disconnect() throws IOException{
+			i.close();
+			o.close();	    	    	
+	    }
 }
 
 

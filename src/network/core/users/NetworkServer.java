@@ -57,4 +57,8 @@ public class NetworkServer extends AbstractNetworkUser{
 			c.send(nick,o);
 		}
 	}
+	public void kick(ClientInfo c) throws IOException{
+		c.getInputStream().close();
+		c.getOutputStream().close();
+	}
 }

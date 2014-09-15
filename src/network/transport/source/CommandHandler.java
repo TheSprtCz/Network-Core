@@ -38,7 +38,7 @@ public class CommandHandler implements Runnable {
 		list.remove(name);
 		for(CommandInfo c:cs.cmdlisteners){
 			if(c.getName().equals(name)){
-				if(checkSize(c.getArguments(),list.size())){
+				if(checkSize(c.getMin(),c.getMax(),list.size())){
 					c.getListener().CommandExecuted(list);
 					return true;
 				}
@@ -50,14 +50,14 @@ public class CommandHandler implements Runnable {
 		
 	}
 
-	private boolean checkSize(int arguments, int size) {
-		if(arguments==size||arguments==-1){
+	private boolean checkSize(int min,int max, int size) {
+		if(size>=min||size<=max){
 			return true;
 		}
-		if(arguments>size){
+		if(size<min){
 			System.out.println(Language.tooFewArguments);
 		}
-		if(arguments<size){
+		if(size>max){
 			System.out.println(Language.tooManyArguments);
 		}					
 		return false;
