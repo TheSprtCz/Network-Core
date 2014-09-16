@@ -3,7 +3,6 @@ package network.core.users;
 import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.net.ServerSocket;
-import java.net.SocketAddress;
 import java.util.List;
 
 import network.core.interfaces.ClientConnectListener;
@@ -57,8 +56,5 @@ public class NetworkServer extends AbstractNetworkUser{
 			c.send(nick,o);
 		}
 	}
-	public void kick(ClientInfo c) throws IOException{
-		c.getInputStream().close();
-		c.getOutputStream().close();
-	}
+
 }

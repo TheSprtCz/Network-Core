@@ -64,4 +64,8 @@ public class ClientInfo {
 	public void send(String nick,Object o) throws IOException{
 		outputStream.writeObject(new MessagePacket(nick,o));
 	}
+	public void kick() throws IOException{
+		inputStream.close();
+		outputStream.close();
+	}
 }

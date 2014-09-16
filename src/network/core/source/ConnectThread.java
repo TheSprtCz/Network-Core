@@ -14,7 +14,6 @@ public class ConnectThread implements Runnable{
 	private Socket client;
 	private ObjectInputStream IStream;
 	private ObjectOutputStream OStream;
-	private int pos=0;
 	private PacketReceiveListener main=new PacketReceiveListener(){
 	
 

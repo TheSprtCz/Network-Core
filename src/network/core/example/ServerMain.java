@@ -36,7 +36,6 @@ public class ServerMain {
 			@Override
 			public void packetReceive(MessagePacket p) {
 				System.out.println(p.getNick()+":"+(String) p.getObject());
-				ClientInfo c=s.sk.getClientByName(p.getNick());
 				try {
 					s.broadcast(p.getNick(),p.getObject());
 				} catch (IOException e) {

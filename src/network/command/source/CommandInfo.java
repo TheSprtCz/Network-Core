@@ -1,6 +1,6 @@
-package network.transport.source;
+package network.command.source;
 
-import network.transport.interfaces.CommandListener;
+import network.command.interfaces.CommandListener;
 
 public class CommandInfo {
 	private CommandListener listener;

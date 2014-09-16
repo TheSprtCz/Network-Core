@@ -1,23 +1,16 @@
-package network.transport.examples;
+package network.command.examples;
 
-import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStreamReader;
 import java.net.Socket;
 import java.net.UnknownHostException;
 import java.util.List;
 
-import network.core.interfaces.ClientConnectListener;
-import network.core.interfaces.ClientDisconnectListener;
+import network.command.interfaces.CommandListener;
+import network.command.users.CommandClient;
 import network.core.interfaces.ConnectListener;
 import network.core.interfaces.DisconnectListener;
 import network.core.interfaces.PacketReceiveListener;
-import network.core.source.ClientInfo;
 import network.core.source.MessagePacket;
-import network.core.users.NetworkServer;
-import network.transport.interfaces.CommandListener;
-import network.transport.users.CommandClient;
-import network.transport.users.CommandServer;
 
 
 public class CmdClientMain {
@@ -49,9 +42,6 @@ public class CmdClientMain {
 			}
 			
 		};
-        BufferedReader stdIn =
-                new BufferedReader(
-                    new InputStreamReader(System.in));
 		c.addConnectListener(t);
 		c.addDisconnectListener(d);
 		c.addReceiveListener(p);
@@ -64,7 +54,7 @@ public class CmdClientMain {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		c.registerCommand("send",-1,"Send <Message> <ID>", new CommandListener(){
+		c.registerCommand("send",Integer.MIN_VALUE,"Send <Message> <ID>", new CommandListener(){
 
 			@Override
 			public void CommandExecuted(List<String> args) {
@@ -80,7 +70,7 @@ public class CmdClientMain {
 			}
 			
 	});
-		c.registerCommand("quit",1,"Send <Message> <ID>", new CommandListener(){
+		c.registerCommand("quit",0,"Send <Message> <ID>", new CommandListener(){
 
 			@Override
 			public void CommandExecuted(List<String> args) {

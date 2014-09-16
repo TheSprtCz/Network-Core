@@ -1,13 +1,13 @@
-package network.transport.users;
+package network.command.users;
 
 import java.io.IOException;
 import java.net.UnknownHostException;
 
+import network.command.interfaces.CommandListener;
+import network.command.source.CommandHandler;
+import network.command.source.CommandInfo;
+import network.command.source.CommandStorage;
 import network.core.users.NetworkClient;
-import network.transport.interfaces.CommandListener;
-import network.transport.source.CommandHandler;
-import network.transport.source.CommandInfo;
-import network.transport.source.CommandStorage;
 
 public class CommandClient extends NetworkClient {
 	private CommandStorage cmd=CommandStorage.getInstance();
