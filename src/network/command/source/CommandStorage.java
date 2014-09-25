@@ -8,6 +8,7 @@ public class CommandStorage {
 	private static CommandStorage instance;
 	public static int UNLIMITED=Integer.MAX_VALUE;
 	public List<CommandInfo> cmdlisteners=new ArrayList<>();
+	public CommandInfo defaultCommand=null;
 	
 	public static CommandStorage getInstance(){
 		if(instance==null){
@@ -62,6 +63,16 @@ public class CommandStorage {
 			}
 		}
 		return null;
+	}
+	public void setDefaultCommand(CommandInfo c){
+		defaultCommand=c;
+	}
+	public void removeDefaultCommand(){
+		defaultCommand=null;
+	}
+	public ArrayList<String> cutString(String userInput){
+		String[] str=userInput.split("\\s");
+		return new ArrayList<String>(Arrays.asList(str));
 	}
 	
 }

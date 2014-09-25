@@ -14,6 +14,9 @@ public class CommandServer extends NetworkServer {
 	public void registerCommand(String name,int arguments,String usage, CommandListener listener){
 		cmd.cmdlisteners.add(new CommandInfo(name, arguments,usage,listener));
 	}
+	public void setDefaultCommand(CommandListener commandListener){
+		cmd.setDefaultCommand(new CommandInfo("default",CommandStorage.UNLIMITED,"",commandListener));
+	}
 	public void registerCommand(String name,int min,int max,String usage, CommandListener listener){
 		cmd.cmdlisteners.add(new CommandInfo(name, min,max,usage,listener));
 	}
@@ -32,6 +35,13 @@ public class CommandServer extends NetworkServer {
 		for(ClientInfo c:getNetworkStorage().clients){
 			if(!c.getNick().equals(sender)){
 				c.send(sender,o);
+			}
+		}
+	}
+	public void rebroadcast(String sender, Object o,String header) throws IOException{
+		for(ClientInfo c:getNetworkStorage().clients){
+			if(!c.getNick().equals(sender)){
+				c.send(sender,o,header);
 			}
 		}
 	}

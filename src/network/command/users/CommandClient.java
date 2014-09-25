@@ -14,6 +14,9 @@ public class CommandClient extends NetworkClient {
 	public void registerCommand(String name,int arguments,String usage, CommandListener listener){
 		cmd.cmdlisteners.add(new CommandInfo(name, arguments,usage,listener));
 	}
+	public void setDefaultCommand(CommandListener commandListener){
+		cmd.setDefaultCommand(new CommandInfo("default",CommandStorage.UNLIMITED,"",commandListener));
+	}
 	public void connect(String hostName,int port, String name) throws UnknownHostException, IOException{
 		super.connect(hostName, port, name);
 		new Thread(new CommandHandler()).start();
