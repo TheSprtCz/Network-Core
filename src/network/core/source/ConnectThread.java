@@ -6,39 +6,50 @@ import java.io.ObjectOutputStream;
 import java.net.ServerSocket;
 import java.net.Socket;
 
-import network.core.interfaces.PacketReceiveListener;
-
-public class ConnectThread implements Runnable{
+public class ConnectThread extends Thread{
 	private ServerSocket server;
 	final private NetworkStorage sk=NetworkStorage.getInstance();
 	private Socket client;
-	private ObjectInputStream IStream;
-	private ObjectOutputStream OStream;
-	private PacketReceiveListener main=new PacketReceiveListener(){
-	
-
-		@Override
-		public void packetReceive(MessagePacket p) {
-			sk.receiveListeners.remove(this);
-			ClientInfo c = new ClientInfo(client.getRemoteSocketAddress().toString(), client.getLocalPort(),p.getNick() , client,IStream,OStream);
-			sk.clients.add(c);			
-			sk.callClientConnectEvent(c);
+	public void registerClient(ObjectInputStream IStream, ObjectOutputStream OStream) throws ClassNotFoundException, IOException{
+    	MessagePacket connectMessage;
+    	IStream.readObject();
+    	connectMessage = (MessagePacket) IStream.readObject();
+    	if(!sk.isConnected(connectMessage.getNick())){
+    		ClientInfo clientInfo = new ClientInfo(connectMessage.getNick() , client,IStream,OStream);
+    		if(checkNick(connectMessage.getNick())){
+    			sk.clients.add(clientInfo);
+    			sk.callClientConnectEvent(clientInfo);
+    		}
+    		else{
+    			clientInfo.kick("Unsupported chars");
+    		}
+    	}
+		else{
+			OStream.writeObject(new MessagePacket(connectMessage.getNick(), "corekick", "Same nick playing"));
+			OStream.flush();
+			if (!client.isInputShutdown()) {
+				client.shutdownInput();
+			}
+			if (!client.isOutputShutdown()) {
+				client.shutdownOutput();
+			}
+			if (!client.isClosed()) {
+				client.close();
+			}
 		}
-		
-	};
+	}
 	@Override
 	public void run() {
-		while(true){
+		while(!interrupted()){
 		try {
 			client=server.accept();
-			OStream=new ObjectOutputStream(client.getOutputStream());
-			IStream=new ObjectInputStream(client.getInputStream());;
-			sk.receiveListeners.put(main,"connect");
+			ObjectOutputStream OStream = new ObjectOutputStream(client.getOutputStream());
+			ObjectInputStream IStream = new ObjectInputStream(client.getInputStream());
 			OStream.writeObject(null);
-			Thread t=new Thread(new PacketReceiveHandler(IStream,sk.clients.size())); 
-		    t.start();
-            
+			registerClient(IStream,OStream);        
 		} catch (IOException e) {
+			this.interrupt();
+		} catch (ClassNotFoundException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
@@ -46,7 +57,18 @@ public class ConnectThread implements Runnable{
 		}
 		
 	}
-	public ConnectThread(ServerSocket s){
-		this.server=s;
+	public boolean checkNick(String nick){
+		String[] banned={"ě","š","č","ř","ž","ý","á","í","ů","ú"," "};
+		for(String chars:banned){
+			if(nick.contains(chars)){
+				return false;
+			}
+		}
+		return true;		
+	}
+	public ConnectThread(ServerSocket server){
+		super("Connect Thread");
+		this.server=server;
+		super.start();
 	}
 }

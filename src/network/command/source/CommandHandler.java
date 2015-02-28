@@ -3,10 +3,8 @@ package network.command.source;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.util.ArrayList;
-import java.util.List;
 
-public class CommandHandler implements Runnable {
+public class CommandHandler extends Thread {
 	private CommandStorage cs=CommandStorage.getInstance();
     BufferedReader stdIn =
             new BufferedReader(
@@ -16,10 +14,13 @@ public class CommandHandler implements Runnable {
 	public void run() {
         String userInput;
 		try {
-			while ((userInput = stdIn.readLine()) != null) {
-				if(!cs.checkCommand(userInput)){
-					unknownCommand(userInput);
-				};
+			while (!interrupted()) {
+				userInput = stdIn.readLine();
+				if (userInput != null) {
+					if (!cs.checkCommand(userInput)) {
+						unknownCommand(userInput);
+					}
+				}
 			}
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
@@ -30,12 +31,12 @@ public class CommandHandler implements Runnable {
 	private void unknownCommand(String input) {
 		if(cs.defaultCommand!=null){
 			cs.defaultCommand.getListener().CommandExecuted(cs.cutString(input));
+			return;
 		}
+		System.out.println(Language.unknownCommand);
 	}
-
-
-
-
-
-	
+	public CommandHandler(){
+		super("CommandHandler");
+		super.start();
+	}
 }

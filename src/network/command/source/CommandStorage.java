@@ -4,15 +4,26 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import network.command.interfaces.CommandListener;
+
 public class CommandStorage {
 	private static CommandStorage instance;
-	public static int UNLIMITED=Integer.MAX_VALUE;
+	public CommandListener help=new CommandListener(){
+		@Override
+		public void CommandExecuted(List<String> args) {
+			System.out.println(Language.helpText);
+			for(CommandInfo cmd:cmdlisteners){
+				System.out.println(cmd.getName()+":"+cmd.getHelp());
+			}
+		}		
+	};
+	public static final int UNLIMITED=Integer.MAX_VALUE;
 	public List<CommandInfo> cmdlisteners=new ArrayList<>();
 	public CommandInfo defaultCommand=null;
 	
 	public static CommandStorage getInstance(){
 		if(instance==null){
-			instance=new CommandStorage();
+			instance = new CommandStorage();
 		}
 		return instance;
 	}
@@ -73,6 +84,20 @@ public class CommandStorage {
 	public ArrayList<String> cutString(String userInput){
 		String[] str=userInput.split("\\s");
 		return new ArrayList<String>(Arrays.asList(str));
+	}
+	public void reset(){
+		cmdlisteners=new ArrayList<>();
+		defaultCommand=null;
+	}
+	public boolean executeCommand(String userInput){
+		ArrayList<String> array=cutString(userInput);
+		CommandInfo c=getCommand(array.get(0));
+		array.remove(0);
+		if(c!=null){
+			c.execute(array);
+			return true;
+		}
+		return false;
 	}
 	
 }

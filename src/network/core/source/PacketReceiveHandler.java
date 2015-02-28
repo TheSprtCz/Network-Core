@@ -2,42 +2,65 @@ package network.core.source;
 
 import java.io.IOException;
 import java.io.ObjectInputStream;
-import java.net.Socket;
+import network.core.users.NetworkClient;
 
-public class PacketReceiveHandler implements Runnable{
+public class PacketReceiveHandler extends Thread{
 	private ObjectInputStream input;
 	private NetworkStorage sk=NetworkStorage.getInstance();
-	private int pos=0;
-	private Socket socket;
+	private String nick;
+	private NetworkClient socket;
 	@Override
 	public void run() {
 		try{
-        	MessagePacket inputLine;
-        	input.readObject();
-        	while ((inputLine = (MessagePacket) input.readObject()) != null) {
-        		sk.callReceiveEvent(inputLine);
+        	Object o;
+        	//input.readObject();
+        	
+        	while (!interrupted()) {
+        		o = input.readObject();
+        		if(o instanceof MessagePacket){
+        			MessagePacket packet = (MessagePacket) o;
+        			sk.callReceiveEvent(packet);
+        			if(socket==null){
+        				sk.callReceiveEvent(new MessagePacket(packet.getNick(),"clientCheck",null));
+        			}
+        			else{
+        				sk.callReceiveEvent(new MessagePacket(packet.getNick(),"serverCheck",null));
+        			}
+        		}
         	}
+        	//disconnect(new IOException("EOS"));
         }
         catch(IOException e){
-       		if(socket!=null){
-       			sk.callDisconnectEvent(socket);
-       		}
-       		else{
-       			ClientInfo c=sk.clients.get(pos);
-       			sk.clients.remove(c);
-       			sk.callClientDisconnectEvent(c);       			
-       		}
-        }
+        	disconnect(e);
+        }	
 		catch(ClassNotFoundException e){
 			e.printStackTrace();
 		}
 	}
-	public PacketReceiveHandler(ObjectInputStream input,Socket s){
+	public PacketReceiveHandler(ObjectInputStream input,NetworkClient s){
+		super("PacketReceiveHandler - Main");
 		this.input=input;
-		this.socket=s;		
+		this.socket=s;
+		super.start();
 	}
-	public PacketReceiveHandler(ObjectInputStream input,int pos){
+	public PacketReceiveHandler(ObjectInputStream input,String nick){
+		super("PacketReceiveHandler - "+nick);
 		this.input=input;
-		this.pos=pos;
+		this.nick=nick;
+		super.start();
+	}
+	public void disconnect(IOException e){
+   		if(socket!=null){
+   			try {
+				socket.disconnect();
+			} catch (IOException e1) {
+				// TODO Auto-generated catch block
+				e1.printStackTrace();
+			}
+   			sk.callDisconnectEvent(socket.getSocket(),e);
+   		}
+   		else{
+   			sk.disconnectClient(nick, e);
+   		}
 	}
 }

@@ -5,46 +5,49 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.Socket;
 import java.net.UnknownHostException;
+
 import network.core.interfaces.ConnectListener;
 import network.core.interfaces.DisconnectListener;
 import network.core.interfaces.PacketReceiveListener;
 import network.core.source.MessagePacket;
 import network.core.users.NetworkClient;
+import network.core.annotations.Annotations.*;
 
 public class ClientMain {
+	static NetworkClient c;
+	@ConnectAnnotation
+	ConnectListener t=new ConnectListener(){
+		@Override
+		public void Connect(Socket c) {
+			System.out.println("Připojeno k serveru");
+		}			
+	};
+	@DisconnectAnnotation
+	DisconnectListener d=new DisconnectListener(){
+
+		@Override
+		public void Disconnect(Socket s, IOException e, String reason, boolean kicked) {
+			System.out.println("Odpojeno od serveru");
+			System.exit(1);
+			
+		}
+		
+	};
+	@PacketReceiveAnnotation(header = "msg")
+	PacketReceiveListener p=new PacketReceiveListener(){
+
+		@Override
+		public void packetReceive(MessagePacket p) {
+			System.out.println(p.getNick()+":"+(String) p.getObject());
+							
+		}
+		
+	};
 	public static void main(String[] args) {
-		NetworkClient c=new NetworkClient();
-		ConnectListener t=new ConnectListener(){
-			@Override
-			public void Connect(Socket c) {
-				System.out.println("Připojeno k serveru");
-			}			
-		};
-		DisconnectListener d=new DisconnectListener(){
-
-			@Override
-			public void Disconnect(Socket s) {
-				System.out.println("Odpojeno od serveru");
-				System.exit(1);
-				
-			}
-			
-		};
-		PacketReceiveListener p=new PacketReceiveListener(){
-
-			@Override
-			public void packetReceive(MessagePacket p) {
-				System.out.println(p.getNick()+":"+(String) p.getObject());
-								
-			}
-			
-		};
-        BufferedReader stdIn =
-                new BufferedReader(
-                    new InputStreamReader(System.in));
-		c.addConnectListener(t);
-		c.addDisconnectListener(d);
-		c.addReceiveListener(p);
+		c=new NetworkClient();
+		BufferedReader stdIn = new BufferedReader(
+		    new InputStreamReader(System.in));
+		c.registerClass(new ClientMain());
 		try {
 			c.connect("localhost", 1055, args[0]);
 			String userInput;
