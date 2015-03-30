@@ -28,7 +28,7 @@ public class ServerMain {
 	ClientDisconnectListener d=new ClientDisconnectListener(){
 
 		@Override
-		public void clientDisconnect(ClientInfo c,IOException e) {
+		public void clientDisconnect(ClientInfo c,IOException e, String reason, boolean kicked) {
 			System.out.println("Client odpojen: "+c.getNick());
 			
 		}

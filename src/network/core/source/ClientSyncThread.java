@@ -25,8 +25,9 @@ public class ClientSyncThread extends Thread {
     	while(!interrupted()){
     		try{
 				if (!checked.get()) {
+					System.out.println("dis");
+					client.getNetworkStorage().reason = "ClientTimeout";
 					client.disconnect();
-					client.getNetworkStorage().reason = "Timeout";
 					client.getNetworkStorage().callDisconnectEvent(client.getSocket(),new IOException("Timeout"));
 				}
 				checked.lazySet(false);

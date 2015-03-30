@@ -5,5 +5,5 @@ import java.io.IOException;
 import network.core.source.ClientInfo;
 
 public interface ClientDisconnectListener {
-	public void clientDisconnect(ClientInfo c,IOException e);
+	public void clientDisconnect(ClientInfo c,IOException e, String reason, boolean kicked);
 }

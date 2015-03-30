@@ -3,6 +3,7 @@ package network.core.source;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+import java.io.Serializable;
 import java.net.Socket;
 import java.util.HashMap;
 import java.util.Map;
@@ -10,8 +11,9 @@ import java.util.Map;
 public class ClientInfo {
 	private int port;
 	private String hostName, nick;
+	private String reason = "Disconnected";
 	private Socket socket;
-	private boolean initialized;
+	private boolean initialized, kicked = false;
 	private ObjectInputStream inputStream;
 	private ObjectOutputStream outputStream;
 	private PacketReceiveHandler thread;
@@ -76,23 +78,19 @@ public class ClientInfo {
 		this.inputStream = inputStream;
 	}
 
-	public void send(Object o, String header) {
-		try {
-			outputStream.writeObject(new MessagePacket("Server", header, o));
-			outputStream.flush();
-		} catch (IOException e) {
-			e.printStackTrace();
-			remove();
-		}
+	public void send(Serializable o, String header) {
+		send("Server",o,header);
 	}
 
-	public void send(String nick, Object o, String header) {
-		try {
-			outputStream.writeObject(new MessagePacket(nick, header, o));
-			outputStream.flush();
-		} catch (IOException e) {
-			e.printStackTrace();
-			remove();
+	public void send(String nick, Serializable o, String header) {
+		if(!socket.isClosed()&&initialized){
+			try {
+				outputStream.writeObject(new MessagePacket(nick, header, o));
+				outputStream.flush();
+			} catch (IOException e) {
+				e.printStackTrace();
+				remove();
+			}
 		}
 	}
 	
@@ -102,10 +100,10 @@ public class ClientInfo {
 	public void remove() {
 		try {
 			if (!socket.isInputShutdown()) {
-				socket.shutdownInput();
+				inputStream.close();
 			}
 			if (!socket.isOutputShutdown()) {
-				socket.shutdownOutput();
+				outputStream.close();
 			}
 			if (!socket.isClosed()) {
 				socket.close();
@@ -120,7 +118,9 @@ public class ClientInfo {
 
 	public void kick(String reason) {
 		send(reason, "corekick");
-		remove();
+		setKicked(true);
+		setReason(reason);
+		NetworkStorage.getInstance().disconnectClient(this, new IOException("Kicked"));
 	}
 
 	public Map<String, Object> getAtributes() {
@@ -133,5 +133,21 @@ public class ClientInfo {
 
 	public void setInitialized(boolean initialized) {
 		this.initialized = initialized;
+	}
+
+	public String getReason() {
+		return reason;
+	}
+
+	public void setReason(String reason) {
+		this.reason = reason;
+	}
+
+	public boolean isKicked() {
+		return kicked;
+	}
+
+	public void setKicked(boolean kicked) {
+		this.kicked = kicked;
 	}
 }

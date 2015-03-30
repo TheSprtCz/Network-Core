@@ -12,21 +12,21 @@ public class PacketReceiveHandler extends Thread{
 	@Override
 	public void run() {
 		try{
-        	Object o;
+        	MessagePacket packet;
         	//input.readObject();
         	
         	while (!interrupted()) {
-        		o = input.readObject();
-        		if(o instanceof MessagePacket){
-        			MessagePacket packet = (MessagePacket) o;
-        			sk.callReceiveEvent(packet);
-        			if(socket==null){
-        				sk.callReceiveEvent(new MessagePacket(packet.getNick(),"clientCheck",null));
-        			}
-        			else{
-        				sk.callReceiveEvent(new MessagePacket(packet.getNick(),"serverCheck",null));
-        			}
-        		}
+        		packet = (MessagePacket) input.readObject();
+				if (packet != null) {
+					sk.callReceiveEvent(packet);
+					if (socket == null) {
+						sk.callReceiveEvent(new MessagePacket(packet.getNick(),
+								"clientCheck", null));
+					} else {
+						sk.callReceiveEvent(new MessagePacket(packet.getNick(),
+								"serverCheck", null));
+					}
+				}
         	}
         	//disconnect(new IOException("EOS"));
         }

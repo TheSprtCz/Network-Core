@@ -63,7 +63,7 @@ public class NetworkStorage {
 	}
 	public void callClientDisconnectEvent(ClientInfo c,IOException e){
 		for(ClientDisconnectListener l:clientdisconnectListeners){
-			l.clientDisconnect(c,e);
+			l.clientDisconnect(c,e,c.getReason(),c.isKicked());
 		}
 	}
 	public void callConnectEvent(Socket s){
@@ -101,6 +101,7 @@ public class NetworkStorage {
 		if(cln!=null){
 			cln.kick(reason);
 			clients.remove(cln);
+			callClientDisconnectEvent(cln,new IOException("Kicked"));
 		}
 	}
 	public void reset() {

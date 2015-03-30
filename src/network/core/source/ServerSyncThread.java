@@ -12,7 +12,6 @@ public class ServerSyncThread extends Thread {
 	private NetworkStorage storage = NetworkStorage.getInstance();
 	private ConcurrentHashMap<ClientInfo, Boolean> responses = new ConcurrentHashMap<ClientInfo, Boolean>();
 	private int timeout;
-
 	@PacketReceiveAnnotation(header = "clientCheck")
 	private PacketReceiveListener check = new PacketReceiveListener() {
 		@Override
@@ -40,10 +39,7 @@ public class ServerSyncThread extends Thread {
 			checkRespond();
 			sendCheck();
 			try {
-				for (int i = 0; i < (timeout / 100); i++) {
-					Thread.sleep(100);
-					sendCheck();
-				}
+				Thread.sleep(timeout);
 			} catch (InterruptedException e) {
 				this.interrupt();
 			}
@@ -55,6 +51,7 @@ public class ServerSyncThread extends Thread {
 			ClientInfo ci = entry.getKey();
 			Boolean bol = entry.getValue();
 			if (!bol && storage.isConnected(ci.getNick())) {
+				System.out.println(ci.getNick()+" dsc");
 				storage.kick(ci.getNick(), "Timeout");
 				// storage.disconnectClient(ci, new IOException("Timeout"));
 			}
