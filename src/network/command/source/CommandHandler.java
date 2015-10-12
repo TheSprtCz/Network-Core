@@ -17,23 +17,13 @@ public class CommandHandler extends Thread {
 			while (!interrupted()) {
 				userInput = stdIn.readLine();
 				if (userInput != null) {
-					if (!cs.checkCommand(userInput)) {
-						unknownCommand(userInput);
-					}
+					cs.checkCommand(userInput);
 				}
 			}
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-	}
-
-	private void unknownCommand(String input) {
-		if(cs.defaultCommand!=null){
-			cs.defaultCommand.getListener().CommandExecuted(cs.cutString(input));
-			return;
-		}
-		System.out.println(Language.unknownCommand);
 	}
 	public CommandHandler(){
 		super("CommandHandler");

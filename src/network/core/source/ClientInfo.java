@@ -99,12 +99,7 @@ public class ClientInfo {
 	}
 	public void remove() {
 		try {
-			if (!socket.isInputShutdown()) {
-				inputStream.close();
-			}
-			if (!socket.isOutputShutdown()) {
-				outputStream.close();
-			}
+			thread.interrupt();
 			if (!socket.isClosed()) {
 				socket.close();
 			}
@@ -113,9 +108,7 @@ public class ClientInfo {
 		catch (IOException e) {
 			e.printStackTrace();
 		}
-		thread.interrupt();
 	}
-
 	public void kick(String reason) {
 		send(reason, "corekick");
 		setKicked(true);

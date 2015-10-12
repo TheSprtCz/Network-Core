@@ -1,47 +1,44 @@
 package network.core.source;
 
 import java.io.IOException;
-import java.util.concurrent.atomic.AtomicBoolean;
 
-import network.core.annotations.Annotations.PacketReceiveAnnotation;
-import network.core.interfaces.PacketReceiveListener;
 import network.core.users.NetworkClient;
 
 public class ClientSyncThread extends Thread {
-	private AtomicBoolean checked = new AtomicBoolean(true); 
+//	private AtomicBoolean checked = new AtomicBoolean(true); 
 	private int timeout;
 	private NetworkClient client;
-    @PacketReceiveAnnotation(header = "serverCheck")
-    private PacketReceiveListener serverCheck = new PacketReceiveListener(){
-
-		@Override
-		public void packetReceive(MessagePacket p) {
-			checked.lazySet(true);
-		}
-    	
-    };
+//    @PacketReceiveAnnotation(header = "serverCheck")
+//    private PacketReceiveListener serverCheck = new PacketReceiveListener(){
+//
+//		@Override
+//		public void packetReceive(MessagePacket p) {
+//			checked.lazySet(true);
+//		}
+//    	
+//    };
     @Override
     public void run(){
     	while(!interrupted()){
     		try{
-				if (!checked.get()) {
-					System.out.println("dis");
-					client.getNetworkStorage().reason = "ClientTimeout";
-					client.disconnect();
-					client.getNetworkStorage().callDisconnectEvent(client.getSocket(),new IOException("Timeout"));
-				}
-				checked.lazySet(false);
+    			client.send(0,"serverCheck");
+//				if (!checked.get()) {
+//					System.out.println("dis");
+//					client.getNetworkStorage().reason = "ClientTimeout";
+//					client.disconnect();
+//					client.getNetworkStorage().callDisconnectEvent(client.getSocket(),new IOException("Timeout"));
+//				}
+//				checked.lazySet(false);
 				Thread.sleep(timeout);
 			} catch (InterruptedException | IOException e) {
 				this.interrupt();
 			}
     	}
     }
-    public ClientSyncThread(int timeout, NetworkClient client){
+    public ClientSyncThread(int timeout,NetworkClient cln){
     	super("ClientSyncThread");
-    	client.registerClass(this);
+    	this.client = cln;
     	this.timeout = timeout;
-    	this.client = client;
     	super.start();
     }
 }

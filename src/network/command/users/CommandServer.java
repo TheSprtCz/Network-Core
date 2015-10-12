@@ -1,7 +1,6 @@
 package network.command.users;
 
 import java.io.IOException;
-
 import network.command.annotations.CommandAnnotationChecker;
 import network.command.interfaces.CommandListener;
 import network.command.source.CommandHandler;
@@ -14,7 +13,7 @@ public class CommandServer extends NetworkServer {
 	private CommandHandler cmdThread;
 	public CommandServer(){
 		cmd.reset();
-	}	
+	}
 	public void registerCommand(String name,int arguments,String usage,String help, CommandListener listener){
 		cmd.cmdlisteners.add(new CommandInfo(name, arguments,usage,help,listener));
 	}

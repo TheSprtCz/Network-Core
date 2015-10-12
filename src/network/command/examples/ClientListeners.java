@@ -1,6 +1,5 @@
 package network.command.examples;
 
-import java.io.IOException;
 import java.net.Socket;
 import java.util.List;
 
@@ -31,7 +30,7 @@ public class ClientListeners {
 	@DisconnectAnnotation
 	DisconnectListener disconnect=new DisconnectListener(){
 		@Override
-		public void Disconnect(Socket s, IOException e, String reason, boolean kicked) {
+		public void Disconnect(Socket s, Exception e, String reason, boolean kicked) {
 			System.out.println("Odpojeno od serveru");
 			System.exit(1);
 			
@@ -89,7 +88,7 @@ public class ClientListeners {
 		public void CommandExecuted(List<String> args) {
 			try {					
 				c.disconnect();
-			} catch (IOException e) {
+			} catch (Exception e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}				
@@ -100,7 +99,7 @@ public class ClientListeners {
 		public void CommandExecuted(List<String> args) {
 			try {					
 				c.send(c.getCommandStorage().ArgsString(0, args), "send");
-			} catch (IOException e) {
+			} catch (Exception e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}				
@@ -112,7 +111,7 @@ public class ClientListeners {
 		public void CommandExecuted(List<String> args) {
 			try {
 				c.send(null, "list");
-			} catch (IOException e) {
+			} catch (Exception e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}

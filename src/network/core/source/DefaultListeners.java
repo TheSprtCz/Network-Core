@@ -9,6 +9,11 @@ import network.core.users.NetworkClient;
 public class DefaultListeners {
 	private NetworkClient c;
 	private NetworkStorage storage = NetworkStorage.getInstance();
+
+    public DefaultListeners(NetworkClient c){
+    	this.c = c;
+    	c.registerClass(this);
+    }
     @PacketReceiveAnnotation(header = "clientCheck")
     private PacketReceiveListener check = new PacketReceiveListener(){
 		@Override
@@ -25,11 +30,8 @@ public class DefaultListeners {
     private PacketReceiveListener kick = new PacketReceiveListener(){
 		@Override
 		public void packetReceive(MessagePacket p) {
-			storage.reason = (String) p.getObject();		
+			storage.reason = (String) p.getObject();
+			storage.kicked = true;
 		}    	
     };
-    public DefaultListeners(NetworkClient c){
-    	this.c = c;
-    	c.registerClass(this);
-    }
 }

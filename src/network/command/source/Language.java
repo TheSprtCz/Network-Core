@@ -5,5 +5,5 @@ public class Language {
 	public static String tooManyArguments="Moc argumentů";
 	public static String tooFewArguments="Málo argumentů";
 	public static String unknownCommand="Neznámý příkaz";
-	public static String helpText="Dostupné příkazy";
+	public static String helpText="Dostupné příkazy: ";
 }

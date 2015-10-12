@@ -33,6 +33,7 @@ public class DefaultClientListeners {
 		@Override
 		public void packetReceive(MessagePacket p) {
 			storage.reason = (String) p.getObject();
+			storage.kicked = true;
 		}
 	};
 

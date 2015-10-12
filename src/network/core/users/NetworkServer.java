@@ -33,7 +33,7 @@ public class NetworkServer extends AbstractNetworkUser{
 		return sk.clientdisconnectListeners;
 	}
     public void create(int portNumber,int timeout) throws IOException{
-    	serverSocket = new ServerSocket(portNumber);
+    	serverSocket = new ServerSocket(portNumber,timeout);
     	createThread(timeout);
     }
     public void create(int portNumber) throws IOException{
@@ -49,7 +49,7 @@ public class NetworkServer extends AbstractNetworkUser{
     }
     public void createThread(int timeout){
     	new DefaultServerListener(this);
-        connect = new ConnectThread(serverSocket);
+        connect = new ConnectThread(serverSocket,timeout);
         check = new ServerSyncThread(timeout,this);
         System.out.println("Server zahájen "+serverSocket.getLocalSocketAddress()+", verze jádra "+NetworkStorage.version);
     }

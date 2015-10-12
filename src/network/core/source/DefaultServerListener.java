@@ -1,5 +1,7 @@
 package network.core.source;
 
+import java.io.IOException;
+
 import network.core.annotations.Annotations.PacketReceiveAnnotation;
 import network.core.interfaces.PacketReceiveListener;
 import network.core.users.NetworkServer;
@@ -14,7 +16,6 @@ public class DefaultServerListener {
 			storage.getClientByName(p.getNick()).setReason((String) p.getObject());			
 		}		
 	};
-	
 	public DefaultServerListener(NetworkServer s){
 		this.s = s;
 		s.registerClass(this);

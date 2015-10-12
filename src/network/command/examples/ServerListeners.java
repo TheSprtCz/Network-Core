@@ -1,6 +1,5 @@
 package network.command.examples;
 
-import java.io.IOException;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
@@ -32,7 +31,7 @@ public class ServerListeners {
 	ClientDisconnectListener disconnect=new ClientDisconnectListener(){
 
 		@Override
-		public void clientDisconnect(ClientInfo c,IOException e, String reason, boolean kicked) {
+		public void clientDisconnect(ClientInfo c,Exception e, String reason, boolean kicked) {
 			System.out.println("Client odpojen: "+c.getNick()+":"+e.getMessage());
 			server.rebroadcast(c.getNick(), c.getNick(),"disconnect");
 		}		
@@ -67,9 +66,10 @@ public class ServerListeners {
 		@Override
 		public void CommandExecuted(List<String> args) {
 			ClientInfo client = server.getNetworkStorage().getClientByName(args.get(0));
-			client.send("Server","Byl jsi vykopnut ze serveru z důvodu: "+args.get(1),"announce");
-			server.rebroadcast(client.getNick(), "Hráč "+client.getNick()+" byl vyhozen ze serveru z důvodu: "+args.get(1), "broadcast");
-			client.remove();			
+			client.kick(args.get(1));
+//			client.send("Server","Byl jsi vykopnut ze serveru z důvodu: "+args.get(1),"announce");
+//			server.rebroadcast(client.getNick(), "Hráč "+client.getNick()+" byl vyhozen ze serveru z důvodu: "+args.get(1), "broadcast");
+//			client.remove();			
 		}		
 	};
 	@CommandAnnotation(name = "list",arg = 0,help = "List",usage = "Zobrazí seznam hráčů")

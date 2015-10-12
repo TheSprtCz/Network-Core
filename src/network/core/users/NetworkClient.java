@@ -47,6 +47,7 @@ public class NetworkClient extends AbstractNetworkUser{
     }
     public void connect(int timeout, String host, int port, String nick) throws IOException,UnknownHostException{
     	socket.connect(new InetSocketAddress(host, port), 1000);
+    	socket.setSoTimeout(timeout);
     	this.nick=nick;
     	i=new ObjectInputStream(socket.getInputStream());
     	o=new ObjectOutputStream(socket.getOutputStream());
@@ -56,7 +57,7 @@ public class NetworkClient extends AbstractNetworkUser{
     	o.writeObject(null);
     	o.flush();
     	new DefaultClientListeners(this);
-    	ClientSyncThread = new ClientSyncThread(timeout,this);
+    	ClientSyncThread = new ClientSyncThread(timeout/2,this);
     	sk.callConnectEvent(socket);
     }
     public void connect(String host, int port, String nick) throws UnknownHostException, IOException{
@@ -82,26 +83,23 @@ public class NetworkClient extends AbstractNetworkUser{
     }
     public void disconnect() throws IOException{
     	if(socket.isConnected()){
-    		if(!socket.isInputShutdown()){
-    			i.close();
-    		}
-    		if(!socket.isOutputShutdown()){
-    			o.close();
-    		}	
+    		PacketReceiveThread.interrupt();
+    		ClientSyncThread.interrupt();
     		if(!socket.isClosed()){
     			socket.close();
     		}
-    		PacketReceiveThread.interrupt();
     	}
     	this.interrupt();
-    	if(ClientSyncThread!=null){
-    		ClientSyncThread.interrupt();
-    	}
     	//socket.close();    	    	
     }
-    public void diconnect(String reason) throws IOException{
+    public void disconnect(String reason,boolean kicked) throws IOException{
     	send(reason,"coredsc");
+    	sk.reason = reason;
+    	sk.kicked = kicked;
     	disconnect();
+    }
+    public void disconnect(String reason) throws IOException{
+    	disconnect(reason,false);
     }
     public void registerClass(Object obj){
     	try {

@@ -1,7 +1,6 @@
 package network.core.example;
 
 import java.io.BufferedReader;
-import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.Socket;
 import java.net.UnknownHostException;
@@ -26,8 +25,8 @@ public class ClientMain {
 	DisconnectListener d=new DisconnectListener(){
 
 		@Override
-		public void Disconnect(Socket s, IOException e, String reason, boolean kicked) {
-			System.out.println("Odpojeno od serveru");
+		public void Disconnect(Socket s, Exception e, String reason, boolean kicked) {
+			System.out.println("Odpojeno od serveru: "+reason);
 			System.exit(1);
 			
 		}
@@ -57,7 +56,7 @@ public class ClientMain {
 		} catch (UnknownHostException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
-		} catch (IOException e) {
+		} catch (Exception e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}

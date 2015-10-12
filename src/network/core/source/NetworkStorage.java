@@ -18,7 +18,8 @@ public class NetworkStorage {
 	public int defaultserverTimeout = 5000;
 	public int defaultclientTimeout = 7000;
 	public static String defaultReason = "Server closed";
-	public static String version = "0.4b";
+	public boolean kicked = false;
+	public static String version = "0.4c";
 	//public ConcurrentMap<String,ClientInfo> clients=new ConcurrentHashMap<String,ClientInfo>();
 	public CopyOnWriteArrayList<ClientInfo> clients=new CopyOnWriteArrayList<>();
 	public ConcurrentMap<String,CopyOnWriteArrayList<PacketReceiveListener>> receiveListeners=new ConcurrentHashMap<String,CopyOnWriteArrayList<PacketReceiveListener>>();
@@ -50,20 +51,21 @@ public class NetworkStorage {
 		c.setInitialized(true);
 		c.send(0,"serverCheck");
 	}
-	public void callDisconnectEvent(Socket s,IOException e){
+	public void callDisconnectEvent(Socket s,Exception e){
 		String reason = defaultReason;
-		boolean kicked = false;
 		if(this.reason!=null){
 			reason = this.reason;
-			kicked = true;
 		}
 		for(DisconnectListener l:disconnectListeners){
 			l.Disconnect(s,e,reason,kicked);
 		}
 	}
-	public void callClientDisconnectEvent(ClientInfo c,IOException e){
-		for(ClientDisconnectListener l:clientdisconnectListeners){
-			l.clientDisconnect(c,e,c.getReason(),c.isKicked());
+	public void callClientDisconnectEvent(ClientInfo c,Exception e){
+		if(clients.contains(c)){
+			for(ClientDisconnectListener l:clientdisconnectListeners){
+				l.clientDisconnect(c,e,c.getReason(),c.isKicked());
+			}
+			clients.remove(c);
 		}
 	}
 	public void callConnectEvent(Socket s){
@@ -83,25 +85,23 @@ public class NetworkStorage {
 	public boolean isConnected(String nick){
 		return getClientByName(nick)!=null;
 	}
-	public void disconnectClient(String nick,IOException e){
+	public void disconnectClient(String nick,Exception e){
 		if(getClientByName(nick)!=null){
 			ClientInfo c = getClientByName(nick);
-			c.remove();
-			clients.remove(c);
 			callClientDisconnectEvent(c,e);
+			c.remove();
 		}	
 	}
-	public void disconnectClient(ClientInfo ci,IOException e){
-		ci.remove();
-		clients.remove(ci);
+	public void disconnectClient(ClientInfo ci,Exception e){
 		callClientDisconnectEvent(ci,e);
+		ci.remove();
+		//System.out.println("Disconnected");
 	}
 	public void kick(String nick, String reason){
 		ClientInfo cln = getClientByName(nick);
 		if(cln!=null){
 			cln.kick(reason);
-			clients.remove(cln);
-			callClientDisconnectEvent(cln,new IOException("Kicked"));
+			//callClientDisconnectEvent(cln,new IOException("Kicked"));
 		}
 	}
 	public void reset() {

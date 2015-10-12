@@ -8,7 +8,7 @@ public class PacketReceiveHandler extends Thread{
 	private ObjectInputStream input;
 	private NetworkStorage sk=NetworkStorage.getInstance();
 	private String nick;
-	private NetworkClient socket;
+	private NetworkClient client;
 	@Override
 	public void run() {
 		try{
@@ -16,31 +16,32 @@ public class PacketReceiveHandler extends Thread{
         	//input.readObject();
         	
         	while (!interrupted()) {
-        		packet = (MessagePacket) input.readObject();
-				if (packet != null) {
-					sk.callReceiveEvent(packet);
-					if (socket == null) {
-						sk.callReceiveEvent(new MessagePacket(packet.getNick(),
-								"clientCheck", null));
-					} else {
-						sk.callReceiveEvent(new MessagePacket(packet.getNick(),
-								"serverCheck", null));
+        		Object o= input.readObject();
+        		if(o instanceof MessagePacket){
+	        		packet = (MessagePacket) o;
+					if (packet != null) {
+						sk.callReceiveEvent(packet);
+						if (client == null) {
+							sk.callReceiveEvent(new MessagePacket(packet.getNick(),
+									"clientCheck", null));
+						} else {
+							sk.callReceiveEvent(new MessagePacket(packet.getNick(),
+									"serverCheck", null));
+						}
 					}
-				}
+        		}
         	}
         	//disconnect(new IOException("EOS"));
         }
-        catch(IOException e){
+        catch(Exception e){
+        	//e.printStackTrace();
         	disconnect(e);
         }	
-		catch(ClassNotFoundException e){
-			e.printStackTrace();
-		}
 	}
 	public PacketReceiveHandler(ObjectInputStream input,NetworkClient s){
 		super("PacketReceiveHandler - Main");
 		this.input=input;
-		this.socket=s;
+		this.client=s;
 		super.start();
 	}
 	public PacketReceiveHandler(ObjectInputStream input,String nick){
@@ -49,17 +50,19 @@ public class PacketReceiveHandler extends Thread{
 		this.nick=nick;
 		super.start();
 	}
-	public void disconnect(IOException e){
-   		if(socket!=null){
+	public void disconnect(Exception e){
+   		if(client!=null){
    			try {
-				socket.disconnect();
+				client.disconnect();
 			} catch (IOException e1) {
 				// TODO Auto-generated catch block
+				System.out.println("Tohle by se stávat an serveru nemělo");
 				e1.printStackTrace();
 			}
-   			sk.callDisconnectEvent(socket.getSocket(),e);
+   			sk.callDisconnectEvent(client.getSocket(),e);
    		}
    		else{
+   			//System.out.println("Removing client "+nick);
    			sk.disconnectClient(nick, e);
    		}
 	}

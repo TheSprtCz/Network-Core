@@ -8,6 +8,7 @@ import java.net.Socket;
 
 public class ConnectThread extends Thread{
 	private ServerSocket server;
+	private int timeout;
 	final private NetworkStorage sk=NetworkStorage.getInstance();
 	private Socket client;
 	public void registerClient(ObjectInputStream IStream, ObjectOutputStream OStream) throws ClassNotFoundException, IOException{
@@ -43,6 +44,7 @@ public class ConnectThread extends Thread{
 		while(!interrupted()){
 		try {
 			client=server.accept();
+			client.setSoTimeout(timeout);
 			ObjectOutputStream OStream = new ObjectOutputStream(client.getOutputStream());
 			ObjectInputStream IStream = new ObjectInputStream(client.getInputStream());
 			OStream.writeObject(null);
@@ -66,9 +68,10 @@ public class ConnectThread extends Thread{
 		}
 		return true;		
 	}
-	public ConnectThread(ServerSocket server){
+	public ConnectThread(ServerSocket server,int timeout){
 		super("Connect Thread");
-		this.server=server;
+		this.server = server;
+		this.timeout = timeout;
 		super.start();
 	}
 }

@@ -31,7 +31,7 @@ public class CommandAnnotationChecker {
 					else{
 						srv.registerCommand(ann.name(), ann.min(), ann.max() , ann.usage(), ann.help(), (CommandListener) f.get(obj));
 					}
-					//System.out.println("Zaregistrován listener");
+					//out.println("Zaregistrován listener");
 				}
 				else{
 					if(ann.arg()>=0){

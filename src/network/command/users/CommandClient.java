@@ -54,6 +54,8 @@ public class CommandClient extends NetworkClient {
 	@Override
 	public void disconnect() throws IOException{
 		super.disconnect();
-		cmdThread.interrupt();
+		if(cmdThread!=null){
+			cmdThread.interrupt();
+		}
 	}
 }

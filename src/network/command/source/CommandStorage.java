@@ -8,13 +8,17 @@ import network.command.interfaces.CommandListener;
 
 public class CommandStorage {
 	private static CommandStorage instance;
+	private BufferOutputStream buffer = new BufferOutputStream();
+	
 	public CommandListener help=new CommandListener(){
 		@Override
 		public void CommandExecuted(List<String> args) {
-			System.out.println(Language.helpText);
+			StringBuilder buffer = new StringBuilder();
+			buffer.append(Language.helpText+System.lineSeparator());
 			for(CommandInfo cmd:cmdlisteners){
-				System.out.println(cmd.getName()+":"+cmd.getHelp());
+				buffer.append(cmd.getName()+": "+cmd.getHelp()+System.lineSeparator());
 			}
+			System.out.print(buffer.toString());
 		}		
 	};
 	public static final int UNLIMITED=Integer.MAX_VALUE;
@@ -27,7 +31,10 @@ public class CommandStorage {
 		}
 		return instance;
 	}
-	public Boolean checkCommand(String userInput) {
+	public String checkCommand(String userInput,boolean record) {
+		if(record){
+			buffer.start();
+		}
 		String[] str=userInput.split("\\s");
 		String name=str[0];
 		ArrayList<String> list=new ArrayList<String>(Arrays.asList(str));
@@ -36,14 +43,31 @@ public class CommandStorage {
 			if(c.getName().equals(name)){
 				if(checkSize(c.getMin(),c.getMax(),list.size())){
 					c.execute(list);
-					return true;
 				}
-				System.out.println(Language.usage+c.getUsage());
-				return true;
+				else{
+					System.out.println(Language.usage+c.getUsage());
+				}
+				if(record){
+					return buffer.finish();
+				}
+				return null;
 			}
 		}
-		return false;
-		
+		unknownCommand(userInput);
+		if(record){
+			return buffer.finish();
+		}
+		return null;
+	}
+	public void checkCommand(String input){
+		checkCommand(input,false);
+	}
+	private void unknownCommand(String input) {
+		if(defaultCommand!=null){
+			defaultCommand.getListener().CommandExecuted(cutString(input));
+			return;
+		}
+		System.out.println(Language.unknownCommand);
 	}
 	public boolean checkSize(int min,int max, int size) {
 		if(size>=min&&size<=max){

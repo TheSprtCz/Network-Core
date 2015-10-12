@@ -8,7 +8,7 @@ import network.core.interfaces.PacketReceiveListener;
 import network.core.source.NetworkStorage;
 
 public class AbstractNetworkUser extends Thread{
-	NetworkStorage sk=NetworkStorage.getInstance();
+	public NetworkStorage sk=NetworkStorage.getInstance();
 	
 	public AbstractNetworkUser(){
 		super("NetworkThread");

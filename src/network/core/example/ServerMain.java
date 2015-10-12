@@ -1,7 +1,6 @@
 package network.core.example;
 
 import java.io.BufferedReader;
-import java.io.IOException;
 import java.io.InputStreamReader;
 
 import network.core.annotations.Annotations.ClientConnectAnnotation;
@@ -12,11 +11,13 @@ import network.core.interfaces.ClientDisconnectListener;
 import network.core.interfaces.PacketReceiveListener;
 import network.core.source.ClientInfo;
 import network.core.source.MessagePacket;
+import network.core.source.NetworkStorage;
 import network.core.users.NetworkServer;
 
 
 public class ServerMain {
-	final static NetworkServer s=new NetworkServer();
+	final static NetworkServer s = new NetworkServer();
+	final NetworkStorage sk = s.sk;
 	@ClientConnectAnnotation
 	ClientConnectListener t=new ClientConnectListener(){
 		@Override
@@ -28,7 +29,7 @@ public class ServerMain {
 	ClientDisconnectListener d=new ClientDisconnectListener(){
 
 		@Override
-		public void clientDisconnect(ClientInfo c,IOException e, String reason, boolean kicked) {
+		public void clientDisconnect(ClientInfo c,Exception e, String reason, boolean kicked) {
 			System.out.println("Client odpojen: "+c.getNick());
 			
 		}
@@ -55,7 +56,7 @@ public class ServerMain {
 			while ((userInput = stdIn.readLine()) != null) {
                 s.broadcast(userInput,"msg");
             }
-		} catch (IOException e) {
+		} catch (Exception e) {
 			e.printStackTrace();
 		}
 	}
