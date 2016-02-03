@@ -6,6 +6,7 @@ import java.io.ObjectOutputStream;
 import java.io.Serializable;
 import java.net.Socket;
 import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.Map;
 
 public class ClientInfo {
@@ -15,8 +16,9 @@ public class ClientInfo {
 	private Socket socket;
 	private boolean initialized, kicked = false;
 	private ObjectInputStream inputStream;
-	private ObjectOutputStream outputStream;
 	private PacketReceiveHandler thread;
+	private LinkedList<MessagePacket> queue = new LinkedList<MessagePacket>();
+	private SendThread send;
 	private Map<String, Object> atributes = new HashMap<String, Object>();
 
 	public ClientInfo(String nick, Socket socket,
@@ -26,7 +28,7 @@ public class ClientInfo {
 		this.nick = nick;
 		this.setSocket(socket);
 		this.inputStream = i;
-		this.outputStream = o;
+		this.send = new SendThread(o, queue);
 		thread = new PacketReceiveHandler(inputStream, nick);
 	}
 
@@ -62,14 +64,6 @@ public class ClientInfo {
 		this.socket = socket;
 	}
 
-	public ObjectOutputStream getOutputStream() {
-		return outputStream;
-	}
-
-	public void setOutputStream(ObjectOutputStream outputStream) {
-		this.outputStream = outputStream;
-	}
-
 	public ObjectInputStream getInputStream() {
 		return inputStream;
 	}
@@ -83,14 +77,12 @@ public class ClientInfo {
 	}
 
 	public void send(String nick, Serializable o, String header) {
-		if(!socket.isClosed()&&initialized){
-			try {
-				outputStream.writeObject(new MessagePacket(nick, header, o));
-				outputStream.flush();
-			} catch (IOException e) {
-				e.printStackTrace();
-				remove();
-			}
+		if(!socket.isClosed() && initialized && !socket.isOutputShutdown()){
+	    	synchronized ( queue ) {
+	    		queue.add(new MessagePacket(nick,header, o));
+	    		queue.notify();
+	    	}	
+	    		//o.flush();
 		}
 	}
 	
@@ -100,6 +92,7 @@ public class ClientInfo {
 	public void remove() {
 		try {
 			thread.interrupt();
+			send.interrupt();
 			if (!socket.isClosed()) {
 				socket.close();
 			}

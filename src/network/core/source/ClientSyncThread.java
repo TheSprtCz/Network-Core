@@ -1,7 +1,5 @@
 package network.core.source;
 
-import java.io.IOException;
-
 import network.core.users.NetworkClient;
 
 public class ClientSyncThread extends Thread {
@@ -21,7 +19,8 @@ public class ClientSyncThread extends Thread {
     public void run(){
     	while(!interrupted()){
     		try{
-    			client.send(0,"serverCheck");
+    			client.send(0,"clientCheck");
+    			//System.out.println("sentCheck");
 //				if (!checked.get()) {
 //					System.out.println("dis");
 //					client.getNetworkStorage().reason = "ClientTimeout";
@@ -29,16 +28,19 @@ public class ClientSyncThread extends Thread {
 //					client.getNetworkStorage().callDisconnectEvent(client.getSocket(),new IOException("Timeout"));
 //				}
 //				checked.lazySet(false);
-				Thread.sleep(timeout);
-			} catch (InterruptedException | IOException e) {
+				ClientSyncThread.sleep(timeout);
+			} catch (InterruptedException e) {
+				//System.out.println("Interrupted Syncthread");
 				this.interrupt();
 			}
     	}
+    	//System.out.println("Interrupted Syncthread (vyběhnul ze smyčky)");
     }
     public ClientSyncThread(int timeout,NetworkClient cln){
     	super("ClientSyncThread");
+    	System.out.println("Vytvořen ClientSyncThread");
     	this.client = cln;
     	this.timeout = timeout;
-    	super.start();
+    	this.start();
     }
 }

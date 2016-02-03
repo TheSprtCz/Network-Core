@@ -1,6 +1,8 @@
 package network.command.examples;
 
+import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.net.UnknownHostException;
 
 import network.command.users.CommandClient;
@@ -9,7 +11,7 @@ import network.command.users.CommandClient;
 public class CmdClientMain {
 
 	public static void main(String[] args) throws IOException {
-		CommandClient c=new CommandClient();
+		CommandClient c = new CommandClient();
 		String help = "Použití: client.jar <IP> <Port> <Name>";
 		try {
 			new ClientListeners(c);
@@ -22,7 +24,11 @@ public class CmdClientMain {
 		} catch(IndexOutOfBoundsException e){
 			System.out.println(help);
 		}
-		
-
+		BufferedReader stdIn = new BufferedReader(
+			    new InputStreamReader(System.in));
+		String userInput;
+		while ((userInput = stdIn.readLine()) != null) {
+            c.getCommandStorage().checkCommand(userInput);
+         }     
 	}
 }

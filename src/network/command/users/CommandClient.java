@@ -5,14 +5,12 @@ import java.net.UnknownHostException;
 
 import network.command.annotations.CommandAnnotationChecker;
 import network.command.interfaces.CommandListener;
-import network.command.source.CommandHandler;
 import network.command.source.CommandInfo;
 import network.command.source.CommandStorage;
 import network.core.users.NetworkClient;
 
 public class CommandClient extends NetworkClient {
 	CommandStorage cmd=CommandStorage.getInstance();
-	private CommandHandler cmdThread;
 	public CommandClient(){
 		cmd.reset();
 	}
@@ -29,7 +27,6 @@ public class CommandClient extends NetworkClient {
 	public void connect(int timeout, String hostName, int port, String name) throws UnknownHostException, IOException{
 		super.connect(timeout, hostName, port, name);
 		registerInitialcommands();
-		cmdThread=new CommandHandler();
 	}
 	@Override
 	public void connect(String hostName, int port, String name) throws UnknownHostException, IOException{
@@ -54,8 +51,5 @@ public class CommandClient extends NetworkClient {
 	@Override
 	public void disconnect() throws IOException{
 		super.disconnect();
-		if(cmdThread!=null){
-			cmdThread.interrupt();
-		}
 	}
 }

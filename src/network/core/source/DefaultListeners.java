@@ -1,7 +1,5 @@
 package network.core.source;
 
-import java.io.IOException;
-
 import network.core.annotations.Annotations.PacketReceiveAnnotation;
 import network.core.interfaces.PacketReceiveListener;
 import network.core.users.NetworkClient;
@@ -18,12 +16,7 @@ public class DefaultListeners {
     private PacketReceiveListener check = new PacketReceiveListener(){
 		@Override
 		public void packetReceive(MessagePacket p) {
-			try {
-				c.send("test","clientCheck");
-			} catch (IOException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
+			c.send("test","clientCheck");
 		}    	
     };
     @PacketReceiveAnnotation(header = "corekick")

@@ -1,6 +1,5 @@
 package network.core.source;
 
-import java.io.IOException;
 import java.net.Socket;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
@@ -15,11 +14,11 @@ import network.core.interfaces.PacketReceiveListener;
 public class NetworkStorage {
 	private static NetworkStorage instance;
 	public String reason;
-	public int defaultserverTimeout = 5000;
-	public int defaultclientTimeout = 7000;
+	public int defaultserverTimeout = 4000;
+	public int defaultclientTimeout = 4000;
 	public static String defaultReason = "Server closed";
 	public boolean kicked = false;
-	public static String version = "0.4c";
+	public static String version = "0.5a";
 	//public ConcurrentMap<String,ClientInfo> clients=new ConcurrentHashMap<String,ClientInfo>();
 	public CopyOnWriteArrayList<ClientInfo> clients=new CopyOnWriteArrayList<>();
 	public ConcurrentMap<String,CopyOnWriteArrayList<PacketReceiveListener>> receiveListeners=new ConcurrentHashMap<String,CopyOnWriteArrayList<PacketReceiveListener>>();
@@ -49,7 +48,7 @@ public class NetworkStorage {
 			l.clientConnect(c);
 		}
 		c.setInitialized(true);
-		c.send(0,"serverCheck");
+		//c.send(0,"serverCheck");
 	}
 	public void callDisconnectEvent(Socket s,Exception e){
 		String reason = defaultReason;
@@ -95,7 +94,7 @@ public class NetworkStorage {
 	public void disconnectClient(ClientInfo ci,Exception e){
 		callClientDisconnectEvent(ci,e);
 		ci.remove();
-		//System.out.println("Disconnected");
+		System.out.println(e);
 	}
 	public void kick(String nick, String reason){
 		ClientInfo cln = getClientByName(nick);

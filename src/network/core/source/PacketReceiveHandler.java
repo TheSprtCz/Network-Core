@@ -16,30 +16,30 @@ public class PacketReceiveHandler extends Thread{
         	//input.readObject();
         	
         	while (!interrupted()) {
-        		Object o= input.readObject();
+        		Object o = input.readObject();
         		if(o instanceof MessagePacket){
 	        		packet = (MessagePacket) o;
 					if (packet != null) {
 						sk.callReceiveEvent(packet);
-						if (client == null) {
-							sk.callReceiveEvent(new MessagePacket(packet.getNick(),
-									"clientCheck", null));
-						} else {
-							sk.callReceiveEvent(new MessagePacket(packet.getNick(),
-									"serverCheck", null));
-						}
+//						if (client == null) {
+//							sk.callReceiveEvent(new MessagePacket(packet.getNick(),
+//									"clientCheck", null));
+//						} else {
+//							sk.callReceiveEvent(new MessagePacket(packet.getNick(),
+//									"serverCheck", null));
+//						}
 					}
         		}
         	}
         	//disconnect(new IOException("EOS"));
         }
         catch(Exception e){
-        	//e.printStackTrace();
+        	e.printStackTrace();
         	disconnect(e);
         }	
 	}
 	public PacketReceiveHandler(ObjectInputStream input,NetworkClient s){
-		super("PacketReceiveHandler - Main");
+		super("PacketReceiveHandler - Client");
 		this.input=input;
 		this.client=s;
 		super.start();
@@ -62,7 +62,7 @@ public class PacketReceiveHandler extends Thread{
    			sk.callDisconnectEvent(client.getSocket(),e);
    		}
    		else{
-   			//System.out.println("Removing client "+nick);
+   			System.out.println("Removing client "+nick);
    			sk.disconnectClient(nick, e);
    		}
 	}

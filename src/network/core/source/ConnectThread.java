@@ -43,11 +43,11 @@ public class ConnectThread extends Thread{
 	public void run() {
 		while(!interrupted()){
 		try {
-			client=server.accept();
+			client = server.accept();
 			client.setSoTimeout(timeout);
 			ObjectOutputStream OStream = new ObjectOutputStream(client.getOutputStream());
 			ObjectInputStream IStream = new ObjectInputStream(client.getInputStream());
-			OStream.writeObject(null);
+			//OStream.writeObject(null);
 			registerClient(IStream,OStream);        
 		} catch (IOException e) {
 			this.interrupt();

@@ -20,9 +20,9 @@ public class MessagePacket implements Serializable{
 //		this.setHeader("none");
 //	}
 	public MessagePacket(String nick,String header,Serializable object){
-		this.nick=nick;
-		this.object=object;
-		this.setHeader(header);
+		this.nick = nick;
+		this.object =  object;
+		this.header = header;
 	}
 	public Serializable getObject() {
 		return object;

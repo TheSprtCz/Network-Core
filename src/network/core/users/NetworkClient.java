@@ -7,6 +7,7 @@ import java.io.Serializable;
 import java.net.InetSocketAddress;
 import java.net.Socket;
 import java.net.UnknownHostException;
+import java.util.LinkedList;
 
 import network.core.annotations.AnnotationChecker;
 import network.core.interfaces.ConnectListener;
@@ -15,6 +16,7 @@ import network.core.interfaces.PacketReceiveListener;
 import network.core.source.DefaultClientListeners;
 import network.core.source.MessagePacket;
 import network.core.source.PacketReceiveHandler;
+import network.core.source.SendThread;
 import network.core.source.ClientSyncThread;
 
 public class NetworkClient extends AbstractNetworkUser{
@@ -22,7 +24,9 @@ public class NetworkClient extends AbstractNetworkUser{
     private String nick;
     private PacketReceiveHandler PacketReceiveThread;
     private ClientSyncThread ClientSyncThread;
-    private ObjectOutputStream o;
+    private SendThread send;
+    private LinkedList<MessagePacket> queue = new LinkedList<MessagePacket>();
+    //private ObjectOutputStream o;
     private ObjectInputStream i;
 
     public void addDisconnectListener(DisconnectListener l){
@@ -39,23 +43,22 @@ public class NetworkClient extends AbstractNetworkUser{
     	sk.reset();
     	super.start();
     }
-    public ObjectOutputStream getOutputStream(){
-    	return o;
-    }
     public ObjectInputStream getInputStream(){
     	return i;
     }
     public void connect(int timeout, String host, int port, String nick) throws IOException,UnknownHostException{
     	socket.connect(new InetSocketAddress(host, port), 1000);
-    	socket.setSoTimeout(timeout);
+    	socket.setSoTimeout(timeout*2);
     	this.nick=nick;
     	i=new ObjectInputStream(socket.getInputStream());
-    	o=new ObjectOutputStream(socket.getOutputStream());
+    	System.out.println("Před vlákenm");
+    	send = new SendThread(new ObjectOutputStream(socket.getOutputStream()),queue);
     	PacketReceiveThread = new PacketReceiveHandler(i,this);
-    	o.writeObject(null);
-    	o.writeObject(new MessagePacket(nick,"connect", null));
-    	o.writeObject(null);
-    	o.flush();
+    	System.out.println("Za vláknem");
+    	//o.writeObject(null);
+    	send(0,"connect");
+    	//o.writeObject(null);
+    	//o.flush();
     	new DefaultClientListeners(this);
     	ClientSyncThread = new ClientSyncThread(timeout/2,this);
     	sk.callConnectEvent(socket);
@@ -69,20 +72,18 @@ public class NetworkClient extends AbstractNetworkUser{
     public Socket getSocket(){
     	return socket;
     }
-    public void send(Serializable ob,String header) throws IOException{
-    	try{
-    		if(!socket.isOutputShutdown()){
-    			o.writeObject(new MessagePacket(nick,header, ob));
-    			o.flush();
-    		}
+    public void send(Serializable ob,String header){
+    	if(!socket.isOutputShutdown()){
+    		synchronized ( queue ) {
+    			queue.add(new MessagePacket(nick,header, ob));
+    			queue.notify();
+    		}	
+    		//o.flush();
     	}
-    	catch(IOException e){
-    		e.printStackTrace();
-    		disconnect();
-    	}	       	
     }
     public void disconnect() throws IOException{
     	if(socket.isConnected()){
+    		send.interrupt();
     		PacketReceiveThread.interrupt();
     		ClientSyncThread.interrupt();
     		if(!socket.isClosed()){

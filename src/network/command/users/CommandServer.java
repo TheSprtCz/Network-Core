@@ -3,14 +3,12 @@ package network.command.users;
 import java.io.IOException;
 import network.command.annotations.CommandAnnotationChecker;
 import network.command.interfaces.CommandListener;
-import network.command.source.CommandHandler;
 import network.command.source.CommandInfo;
 import network.command.source.CommandStorage;
 import network.core.users.NetworkServer;
 
 public class CommandServer extends NetworkServer {
 	CommandStorage cmd=CommandStorage.getInstance();
-	private CommandHandler cmdThread;
 	public CommandServer(){
 		cmd.reset();
 	}
@@ -26,7 +24,6 @@ public class CommandServer extends NetworkServer {
 	public void create(int timeout,String hostname, int port) throws IOException{
 		super.create(hostname,port,timeout);
 		registerInitialcommands();
-		cmdThread=new CommandHandler();
 	}
 	public void create(String hostname, int port) throws IOException{
 		create(getNetworkStorage().defaultserverTimeout,hostname,port);
@@ -34,7 +31,6 @@ public class CommandServer extends NetworkServer {
 	public void create(int port, int timeout) throws IOException{
 		super.create(port, timeout);
 		registerInitialcommands();
-		cmdThread=new CommandHandler();
 	}
 	public void create(int port) throws IOException{
 		create(port,getNetworkStorage().defaultserverTimeout);
@@ -59,6 +55,5 @@ public class CommandServer extends NetworkServer {
 	@Override
 	public void shutdown() throws IOException{
 		super.shutdown();
-		cmdThread.interrupt();
 	}
 }

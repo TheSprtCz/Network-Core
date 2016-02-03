@@ -49,8 +49,8 @@ public class NetworkServer extends AbstractNetworkUser{
     }
     public void createThread(int timeout){
     	new DefaultServerListener(this);
-        connect = new ConnectThread(serverSocket,timeout);
-        check = new ServerSyncThread(timeout,this);
+        connect = new ConnectThread(serverSocket,timeout*2);
+        //check = new ServerSyncThread(timeout,this);
         System.out.println("Server zahájen "+serverSocket.getLocalSocketAddress()+", verze jádra "+NetworkStorage.version);
     }
     public ServerSocket getSocket(){
@@ -87,7 +87,7 @@ public class NetworkServer extends AbstractNetworkUser{
     }
     public void shutdown() throws IOException{
     	connect.interrupt();
-    	check.interrupt();
+    	//check.interrupt();
     	serverSocket.close();
     }
 }
